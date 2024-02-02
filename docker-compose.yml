@@ -17,11 +17,8 @@ services:
       - "8089:8080"
       - "7077:7077"
       - "4040:4040"
-      # - "18080"
-      # - "6066:6066"
     volumes:
-      - /home/jeff/scripts:/home/scripts
-    #command: /bin/bash -c "spark-submit --master spark://spark:7077 /home/scripts/job.py"
+      - /spark_scripts:/home/scripts
   spark-worker:
     image: docker.io/bitnami/spark:3.5
     ports:
@@ -36,41 +33,16 @@ services:
       - SPARK_LOCAL_STORAGE_ENCRYPTION_ENABLED=no
       - SPARK_SSL_ENABLED=no
       - SPARK_USER=spark
-    # volumes:
-    #   - /home/jeff/scripts:/home/scripts
     depends_on:
       - spark
-  # zookeeper:
-  #   image: docker.io/bitnami/zookeeper:3.9
-  #   ports:
-  #     - '2181:2181'
-  #   environment:
-  #     - ALLOW_ANONYMOUS_LOGIN=yes
 
-  # kafka:
-  #   image: docker.io/bitnami/kafka:3.6
-  #   ports:
-  #     - '9092:9092'
-
-  #   environment:
-  #     - KAFKA_BROKER_ID=1
-  #     - KAFKA_LISTENERS=PLAINTEXT://:9092
-  #     - KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://127.0.0.1:9092
-  #     - KAFKA_ZOOKEEPER_CONNECT=zookeeper:2181
-  #     - ALLOW_PLAINTEXT_LISTENER=yes
-
-  #   volumes:
-  #     - "kafka_data:/bitnami"
-
-  #   depends_on:
-  #     - zookeeper
 
   kafka:
     image: docker.io/bitnami/kafka:3.6
     ports:
       - "9092:9092"
     volumes:
-      - "kafka_data:/bitnami"
+      - "../kafka_data:/bitnami"
     environment:
       # KRaft settings
       - KAFKA_CFG_NODE_ID=0
@@ -82,6 +54,8 @@ services:
       - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT
       - KAFKA_CFG_CONTROLLER_LISTENER_NAMES=CONTROLLER
       - KAFKA_CFG_INTER_BROKER_LISTENER_NAME=PLAINTEXT
+
+
   minio:
     image: docker.io/bitnami/minio:2024
     ports:
@@ -91,14 +65,13 @@ services:
       - MINIO_ROOT_USER=admin
       - MINIO_ROOT_PASSWORD=adminadmin
     volumes:
-      - 'minio_data:/bitnami/minio/data'
+      - '../minio_data:/bitnami/minio/data'
 
 
-  
   postgresql:
     image: docker.io/bitnami/postgresql:16
     volumes:
-      - 'postgresql_data:/bitnami/postgresql'
+      - '../postgresql_data:/bitnami/postgresql'
     ports:
       - '5432:5432'
     environment:
@@ -112,7 +85,6 @@ services:
       interval: 10s
       retries: 5
       start_period: 5s
-    #restart: always
   
   airflow:
     build:
@@ -135,12 +107,14 @@ services:
     #restart: always
     depends_on:
       - postgresql
+
+
   mongodb:
     image: docker.io/bitnami/mongodb:7.0
     ports:
       - "27017:27017"
     volumes:
-      - 'mongodb_data:/bitnami/mongodb'
+      - '../mongodb_data:/bitnami/mongodb'
     environment:
       - ALLOW_EMPTY_PASSWORD=yes
       - MONGODB_SYSTEM_LOG_VERBOSITY=3
@@ -150,10 +124,8 @@ services:
     ports:
       - "3000:3000"
     volumes:
-      - "metabase_data:/metabase_data"
-    
+      - "../metabase_data:/metabase_data"
     environment:
-    #   - MB_DB_CONNECTION_URI=jdbc:postgresql://db.example.com:5432/mydb?user=dbuser&password=dbpassword
     - MB_ENABLE_PASSWORD_LOGIN=false
     - MB_PASSWORD_COMPLEXITY=weak
     - MB_PASSWORD_LENGTH=1

@@ -1,8 +1,8 @@
 FROM apache/airflow:2.8.1 as airflow
 
 USER root
-COPY start.sh /start.sh
-RUN chmod +x /start.sh
+COPY airflow_start.sh /airflow_start.sh
+RUN chmod +x /airflow_start.sh
 USER airflow
 ENTRYPOINT ["/bin/bash", "/airflow_start.sh"]
 
