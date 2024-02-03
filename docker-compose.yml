@@ -18,7 +18,7 @@ services:
       - "7077:7077"
       - "4040:4040"
     volumes:
-      - /spark_scripts:/home/scripts
+      - ..volumes/spark_scripts:/home/scripts
   spark-worker:
     image: docker.io/bitnami/spark:3.5
     ports:
@@ -75,40 +75,16 @@ services:
     ports:
       - '5432:5432'
     environment:
-      - POSTGRESQL_DATABASE=airflow_db
-      - POSTGRESQL_USERNAME=airflow_user
-      - POSTGRESQL_PASSWORD=airflow_pass
+      - POSTGRESQL_DATABASE=dev_db
+      - POSTGRESQL_USERNAME=dev_user
+      - POSTGRESQL_PASSWORD=dev_pass
       # ALLOW_EMPTY_PASSWORD is recommended only for development.
       - ALLOW_EMPTY_PASSWORD=yes
     healthcheck:
-      test: ["CMD", "pg_isready", "-U", "airflow_user"]
+      test: ["CMD", "pg_isready", "-U", "dev_user"]
       interval: 10s
       retries: 5
       start_period: 5s
-  
-  airflow:
-    build:
-      context: .
-      target: airflow
-    image: apache/airflow:2.8.1
-    ports:
-      - "8085:8080"
-    
-    environment:
-      - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://airflow_user:airflow_pass@postgresql:5432/airflow_db
-      - AIRFLOW__CORE__EXECUTOR=LocalExecutor
-
-    healthcheck:
-      test: ["CMD", "curl", "--fail", "http://localhost:8080/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 5
-      start_period: 30s
-    #restart: always
-    depends_on:
-      postgresql:
-        condition: service_healthy
-
 
 
   mongodb:
@@ -142,5 +118,7 @@ volumes:
   mongodb_data:
     driver: local
   metabase_data:
+    driver: local
+  spark_scripts:
     driver: local
   
