@@ -42,7 +42,7 @@ services:
     ports:
       - "9092:9092"
     volumes:
-      - "../kafka_data:/bitnami"
+      - "../volumes/kafka_data:/bitnami"
     environment:
       # KRaft settings
       - KAFKA_CFG_NODE_ID=0
@@ -65,13 +65,13 @@ services:
       - MINIO_ROOT_USER=admin
       - MINIO_ROOT_PASSWORD=adminadmin
     volumes:
-      - '../minio_data:/bitnami/minio/data'
+      - '../volumes/minio_data:/bitnami/minio/data'
 
 
   postgresql:
     image: docker.io/bitnami/postgresql:16
     volumes:
-      - '../postgresql_data:/bitnami/postgresql'
+      - '../volumes/postgresql_data:/bitnami/postgresql'
     ports:
       - '5432:5432'
     environment:
@@ -106,7 +106,9 @@ services:
       start_period: 30s
     #restart: always
     depends_on:
-      - postgresql
+      postgresql:
+        condition: service_healthy
+
 
 
   mongodb:
@@ -114,7 +116,7 @@ services:
     ports:
       - "27017:27017"
     volumes:
-      - '../mongodb_data:/bitnami/mongodb'
+      - '../volumes/mongodb_data:/bitnami/mongodb'
     environment:
       - ALLOW_EMPTY_PASSWORD=yes
       - MONGODB_SYSTEM_LOG_VERBOSITY=3
@@ -124,7 +126,7 @@ services:
     ports:
       - "3000:3000"
     volumes:
-      - "../metabase_data:/metabase_data"
+      - "../volumes/metabase_data:/metabase_data"
     environment:
     - MB_ENABLE_PASSWORD_LOGIN=false
     - MB_PASSWORD_COMPLEXITY=weak
