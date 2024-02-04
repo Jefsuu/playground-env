@@ -1,0 +1,8 @@
+#first create the database
+psql -h postgresql -U postgres -c "create database \"adventureworks\";"
+
+#then move to folder where script and data are
+cd /bitnami/postgresql/downloads/adventureworks
+
+#then execute the script
+psql -d adventureworks < install.sql -U postgres
